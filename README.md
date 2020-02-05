@@ -7,7 +7,6 @@
   - [Asset registration](#asset-registration)
   - [Resource definition](#resource-definition)
 - [Installation from source](#installation-from-source)
-- [Additional notes](#additional-notes)
 - [Contributing](#contributing)
 
 ## Overview
@@ -37,21 +36,21 @@ Flags:
   -t, --token string    the API token for the wavefront server
 ```
 
-### Configuration
+## Configuration
 
-#### Asset registration
+### Asset registration
 
 Assets are the best way to make use of this plugin. If you're not using an asset, please consider
 doing so! If you're using sensuctl 5.13 with Sensu Backend 5.13 or later, you can use the following
 command to add the asset:
 
 ```
-sensuctl asset add sensu/sensu-wavefront-handler:VERSION`
+sensuctl asset add sensu/sensu-wavefront-handler
 ```
 
 If you're using an earlier version of sensuctl, you can find the asset on the [Bonsai Asset Index]([https://bonsai.sensu.io/assets/sensu/sensu-wavefront-handler](https://bonsai.sensu.io/assets/sensu/sensu-wavefront-handler)).
 
-#### Resource definition
+### Resource definition
 
 ```yml
 ---
