@@ -3,10 +3,12 @@ package main
 import (
 	"compress/gzip"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -15,16 +17,24 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func splitTestURL(t *testing.T, url string) (string, int) {
+	split := strings.Split(url, ":")
+	require.Equal(t, 3, len(split))
+	host := fmt.Sprintf("%s:%s", split[0], split[1])
+	i, err := strconv.Atoi(split[2])
+	require.NoError(t, err)
+	port := i
+	return host, port
+}
+
 func TestExecuteHandler(t *testing.T) {
 	assert := assert.New(t)
 	event := corev2.FixtureEvent("entity1", "check1")
 	event.Check = nil
 	event.Metrics = corev2.FixtureMetrics()
 	event.Metrics.Points[0].Timestamp = 1580922166749062000
-	token := "dummy_token"
 
 	var test = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		assert.Equal("Bearer "+token, r.Header.Get("Authorization"))
 		gr, err := gzip.NewReader(r.Body)
 		assert.NoError(err)
 		body, err := ioutil.ReadAll(gr)
@@ -34,8 +44,9 @@ func TestExecuteHandler(t *testing.T) {
 		w.WriteHeader(http.StatusOK)
 	}))
 
-	handlerConfig.Server = test.URL
-	handlerConfig.Token = token
+	host, port := splitTestURL(t, test.URL)
+	handlerConfig.Host = host
+	handlerConfig.MetricsPort = port
 	assert.NoError(executeHandler(event))
 }
 
@@ -65,8 +76,11 @@ func TestMain(t *testing.T) {
 		require.NoError(t, err)
 	}))
 
+	host, port := splitTestURL(t, test.URL)
+	handlerConfig.Host = host
+	handlerConfig.MetricsPort = port
 	oldArgs := os.Args
-	os.Args = []string{"sensu-wavefront-handler", "-s", test.URL, "-t", "dummy_token"}
+	os.Args = []string{"sensu-wavefront-handler", "--host", host, "--metrics-port", string(port)}
 	defer func() { os.Args = oldArgs }()
 
 	main()
