@@ -12,8 +12,11 @@ import (
 // Config represents a handler config for the wavefront handler.
 type Config struct {
 	sensu.PluginConfig
-	Server string
-	Token  string
+	Host                 string
+	MetricsPort          int
+	FlushIntervalSeconds int
+	Prefix               string
+	Tags                 map[string]string
 }
 
 // Options represents the config options for the wavefront handler.
@@ -22,15 +25,18 @@ type Options struct {
 }
 
 const (
-	server = "server"
-	token  = "token"
+	host   = "host"
+	port   = "metrics-port"
+	flush  = "flush-interval-seconds"
+	prefix = "prefix"
+	tags   = "tags"
 )
 
 var (
 	handlerConfig = Config{
 		PluginConfig: sensu.PluginConfig{
 			Name:     "sensu-wavefront-handler",
-			Short:    "a wavefront metrics handler built for use with sensu",
+			Short:    "sends metrics to a wavefront proxy using the wavefront data format",
 			Timeout:  10,
 			Keyspace: "sensu.io/plugins/sensu-wavefront-handler/config",
 		},
@@ -38,22 +44,49 @@ var (
 
 	opts = []*sensu.PluginConfigOption{
 		&sensu.PluginConfigOption{
-			Path:      server,
-			Env:       "WAVEFRONT_SERVER",
-			Argument:  server,
-			Shorthand: "s",
-			Default:   "",
-			Usage:     "the address of the wavefront server",
-			Value:     &handlerConfig.Server,
+			Path:      host,
+			Env:       "WAVEFRONT_HOST",
+			Argument:  host,
+			Shorthand: "",
+			Default:   "127.0.0.1",
+			Usage:     "the host of the wavefront proxy",
+			Value:     &handlerConfig.Host,
 		},
 		&sensu.PluginConfigOption{
-			Path:      token,
-			Env:       "WAVEFRONT_TOKEN",
-			Argument:  token,
-			Shorthand: "t",
+			Path:      port,
+			Env:       "WAVEFRONT_METRICS_PORT",
+			Argument:  port,
+			Shorthand: "m",
+			Default:   2878,
+			Usage:     "the port of the wavefront proxy",
+			Value:     &handlerConfig.MetricsPort,
+		},
+		&sensu.PluginConfigOption{
+			Path:      flush,
+			Env:       "WAVEFRONT_FLUSH_INTERVAL_SECONDS",
+			Argument:  flush,
+			Shorthand: "f",
+			Default:   1,
+			Usage:     "the flush interval of the wavefront proxy (in seconds)",
+			Value:     &handlerConfig.FlushIntervalSeconds,
+		},
+		&sensu.PluginConfigOption{
+			Path:      prefix,
+			Env:       "WAVEFRONT_PREFIX",
+			Argument:  prefix,
+			Shorthand: "p",
 			Default:   "",
-			Usage:     "the API token for the wavefront server",
-			Value:     &handlerConfig.Token,
+			Usage:     "the prefix to append to the metric name",
+			Value:     &handlerConfig.Prefix,
+		},
+		&sensu.PluginConfigOption{
+			Path:      tags,
+			Env:       "WAVEFRONT_TAGS",
+			Argument:  tags,
+			Shorthand: "t",
+			Default:   nil,
+			Usage:     "the additional tags to merge with the metric tags",
+			Value:     &handlerConfig.Tags,
 		},
 	}
 )
@@ -64,12 +97,6 @@ func main() {
 }
 
 func checkArgs(event *corev2.Event) error {
-	if handlerConfig.Server == "" {
-		return fmt.Errorf("--server or WAVEFRONT_SERVER environment variable is required")
-	}
-	if handlerConfig.Token == "" {
-		return fmt.Errorf("--token or WAVEFRONT_TOKEN environment variable is required")
-	}
 	if !event.HasMetrics() {
 		return fmt.Errorf("event does not contain metrics")
 	}
@@ -82,15 +109,13 @@ func executeHandler(event *corev2.Event) error {
 		return nil
 	}
 
-	directCfg := &wavefront.DirectConfiguration{
-		Server:               handlerConfig.Server,
-		Token:                handlerConfig.Token,
-		BatchSize:            10000,
-		MaxBufferSize:        50000,
-		FlushIntervalSeconds: 1,
+	proxyCfg := &wavefront.ProxyConfiguration{
+		Host:                 handlerConfig.Host,
+		MetricsPort:          handlerConfig.MetricsPort,
+		FlushIntervalSeconds: handlerConfig.FlushIntervalSeconds,
 	}
 
-	sender, err := wavefront.NewDirectSender(directCfg)
+	sender, err := wavefront.NewProxySender(proxyCfg)
 	if err != nil {
 		return err
 	}
@@ -100,7 +125,21 @@ func executeHandler(event *corev2.Event) error {
 		for _, tag := range point.Tags {
 			tags[tag.Name] = tag.Value
 		}
-		sender.SendMetric(point.Name, point.Value, point.Timestamp, event.Entity.Name, tags)
+
+		// merge tags if provided as config option
+		if handlerConfig.Tags != nil {
+			for k, v := range handlerConfig.Tags {
+				tags[k] = v
+			}
+		}
+
+		// prefix metric name if provided as config option
+		name := point.Name
+		if handlerConfig.Prefix != "" {
+			name = fmt.Sprintf("%s.%s", handlerConfig.Prefix, name)
+		}
+
+		sender.SendMetric(name, point.Value, point.Timestamp, event.Entity.Name, tags)
 	}
 
 	log.Printf("sent %d metric points with %d failures", len(event.Metrics.Points), sender.GetFailureCount())
