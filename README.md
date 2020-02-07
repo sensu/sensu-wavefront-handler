@@ -35,7 +35,7 @@ Flags:
   -h, --help                         help for sensu-wavefront-handler
       --host string                  the host of the wavefront proxy (default "127.0.0.1")
   -m, --metrics-port int             the port of the wavefront proxy (default 2878)
-  -p, --prefix string                the prefix to append to the metric name
+  -p, --prefix string                the string to be prepended to the metric name
   -t, --tags stringToString          the additional tags to merge with the metric tags (default [])
 ```
 

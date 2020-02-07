@@ -70,7 +70,7 @@ var (
 			Argument:  prefix,
 			Shorthand: "p",
 			Default:   "",
-			Usage:     "the string to prepended to the metric name",
+			Usage:     "the string to be prepended to the metric name",
 			Value:     &handlerConfig.Prefix,
 		},
 		&sensu.PluginConfigOption{
