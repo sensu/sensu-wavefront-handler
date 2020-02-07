@@ -3,10 +3,10 @@ package main
 import (
 	"compress/gzip"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"os"
 	"strconv"
 	"strings"
@@ -16,16 +16,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
-
-func splitTestURL(t *testing.T, url string) (string, int) {
-	split := strings.Split(url, ":")
-	require.Equal(t, 3, len(split))
-	host := fmt.Sprintf("%s:%s", split[0], split[1])
-	i, err := strconv.Atoi(split[2])
-	require.NoError(t, err)
-	port := i
-	return host, port
-}
 
 func TestExecuteHandler(t *testing.T) {
 	assert := assert.New(t)
@@ -44,8 +34,11 @@ func TestExecuteHandler(t *testing.T) {
 		w.WriteHeader(http.StatusOK)
 	}))
 
-	host, port := splitTestURL(t, test.URL)
-	handlerConfig.Host = host
+	url, err := url.ParseRequestURI(test.URL)
+	assert.NoError(err)
+	handlerConfig.Host = url.Hostname()
+	port, err := strconv.Atoi(url.Port())
+	require.NoError(t, err)
 	handlerConfig.MetricsPort = port
 	assert.NoError(executeHandler(event))
 }
@@ -76,8 +69,11 @@ func TestMain(t *testing.T) {
 		require.NoError(t, err)
 	}))
 
-	host, port := splitTestURL(t, test.URL)
-	handlerConfig.Host = host
+	url, err := url.ParseRequestURI(test.URL)
+	assert.NoError(err)
+	handlerConfig.Host = url.Hostname()
+	port, err := strconv.Atoi(url.Port())
+	require.NoError(t, err)
 	handlerConfig.MetricsPort = port
 	oldArgs := os.Args
 	os.Args = []string{"sensu-wavefront-handler", "--host", host, "--metrics-port", string(port)}
