@@ -19,11 +19,6 @@ type Config struct {
 	Tags                 map[string]string
 }
 
-// Options represents the config options for the wavefront handler.
-type Options struct {
-	Example sensu.PluginConfigOption
-}
-
 const (
 	host   = "host"
 	port   = "metrics-port"
@@ -37,7 +32,6 @@ var (
 		PluginConfig: sensu.PluginConfig{
 			Name:     "sensu-wavefront-handler",
 			Short:    "sends metrics to a wavefront proxy using the wavefront data format",
-			Timeout:  10,
 			Keyspace: "sensu.io/plugins/sensu-wavefront-handler/config",
 		},
 	}
@@ -76,7 +70,7 @@ var (
 			Argument:  prefix,
 			Shorthand: "p",
 			Default:   "",
-			Usage:     "the prefix to append to the metric name",
+			Usage:     "the string to append to the metric name",
 			Value:     &handlerConfig.Prefix,
 		},
 		&sensu.PluginConfigOption{
