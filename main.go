@@ -116,15 +116,15 @@ func executeHandler(event *corev2.Event) error {
 
 	for _, point := range event.Metrics.Points {
 		tags := make(map[string]string)
-		for _, tag := range point.Tags {
-			tags[tag.Name] = tag.Value
-		}
-
 		// merge tags if provided as config option
 		if handlerConfig.Tags != nil {
 			for k, v := range handlerConfig.Tags {
 				tags[k] = v
 			}
+		}
+		// overwrite tags with those from the original event
+		for _, tag := range point.Tags {
+			tags[tag.Name] = tag.Value
 		}
 
 		// prefix metric name if provided as config option
