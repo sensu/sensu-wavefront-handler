@@ -78,7 +78,7 @@ or create an executable script from this source.
 From the local path of the sensu-wavefront-handler repository:
 
 ```
-go build -o /usr/local/bin/sensu-wavefront-handler main.go
+go build
 ```
 
 ## Contributing
