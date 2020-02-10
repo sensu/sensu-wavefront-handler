@@ -43,15 +43,15 @@ Flags:
 
 ### Asset registration
 
-Assets are the best way to make use of this plugin. If you're not using an asset, please consider
-doing so! If you're using sensuctl 5.13 with Sensu Backend 5.13 or later, you can use the following
-command to add the asset:
+[Sensu Assets][14] are the best way to make use of this plugin. If you're not using an asset, please
+consider doing so! If you're using sensuctl 5.13 with Sensu Backend 5.13 or later, you can use the
+following command to add the asset:
 
 ```
 sensuctl asset add sensu/sensu-wavefront-handler
 ```
 
-If you're using an earlier version of sensuctl, you can find the asset on the [Bonsai Asset Index]([https://bonsai.sensu.io/assets/sensu/sensu-wavefront-handler](https://bonsai.sensu.io/assets/sensu/sensu-wavefront-handler)).
+If you're using an earlier version of sensuctl, you can find the asset on the [Bonsai Asset Index][13].
 
 ### Resource definition
 
@@ -97,3 +97,5 @@ For more information about contributing to this plugin, see [Contributing][1].
 [10]: https://www.wavefront.com/
 [11]: https://github.com/sensu/sensu-go
 [12]: https://docs.wavefront.com/proxies.html
+[13]: https://bonsai.sensu.io/assets/sensu/sensu-wavefront-handler
+[14]: https://docs.sensu.io/sensu-go/latest/reference/assets/
