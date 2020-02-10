@@ -98,3 +98,4 @@ For more information about contributing to this plugin, see [Contributing][1].
 [11]: https://github.com/sensu/sensu-go
 [12]: https://docs.wavefront.com/proxies.html
 [13]: https://bonsai.sensu.io/assets/sensu/sensu-wavefront-handler
+[14]: https://docs.sensu.io/sensu-go/latest/reference/assets/
