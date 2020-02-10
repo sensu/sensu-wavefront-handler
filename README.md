@@ -43,7 +43,7 @@ Flags:
 
 ### Asset registration
 
-[Sensu Assets][10] are the best way to make use of this plugin. If you're not using an asset, please
+[Sensu Assets][14] are the best way to make use of this plugin. If you're not using an asset, please
 consider doing so! If you're using sensuctl 5.13 with Sensu Backend 5.13 or later, you can use the
 following command to add the asset:
 
