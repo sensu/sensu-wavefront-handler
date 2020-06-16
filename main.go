@@ -133,7 +133,8 @@ func executeHandler(event *corev2.Event) error {
 			name = fmt.Sprintf("%s.%s", handlerConfig.Prefix, name)
 		}
 
-		sender.SendMetric(name, point.Value, point.Timestamp, event.Entity.Name, tags)
+		err = sender.SendMetric(name, point.Value, point.Timestamp, event.Entity.Name, tags)
+		log.Printf("error sending metric: %s", err)
 	}
 
 	log.Printf("sent %d metric points with %d failures", len(event.Metrics.Points), sender.GetFailureCount())
