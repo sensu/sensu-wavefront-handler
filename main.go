@@ -37,7 +37,7 @@ var (
 	}
 
 	opts = []*sensu.PluginConfigOption{
-		&sensu.PluginConfigOption{
+		{
 			Path:      host,
 			Env:       "WAVEFRONT_HOST",
 			Argument:  host,
@@ -46,7 +46,7 @@ var (
 			Usage:     "the host of the wavefront proxy",
 			Value:     &handlerConfig.Host,
 		},
-		&sensu.PluginConfigOption{
+		{
 			Path:      port,
 			Env:       "WAVEFRONT_METRICS_PORT",
 			Argument:  port,
@@ -55,7 +55,7 @@ var (
 			Usage:     "the port of the wavefront proxy",
 			Value:     &handlerConfig.MetricsPort,
 		},
-		&sensu.PluginConfigOption{
+		{
 			Path:      flush,
 			Env:       "WAVEFRONT_FLUSH_INTERVAL_SECONDS",
 			Argument:  flush,
@@ -64,7 +64,7 @@ var (
 			Usage:     "the flush interval of the wavefront proxy (in seconds)",
 			Value:     &handlerConfig.FlushIntervalSeconds,
 		},
-		&sensu.PluginConfigOption{
+		{
 			Path:      prefix,
 			Env:       "WAVEFRONT_PREFIX",
 			Argument:  prefix,
@@ -73,7 +73,7 @@ var (
 			Usage:     "the string to be prepended to the metric name",
 			Value:     &handlerConfig.Prefix,
 		},
-		&sensu.PluginConfigOption{
+		{
 			Path:      tags,
 			Env:       "WAVEFRONT_TAGS",
 			Argument:  tags,
@@ -86,7 +86,7 @@ var (
 )
 
 func main() {
-	handler := sensu.NewGoHandler(&handlerConfig.PluginConfig, opts, checkArgs, executeHandler)
+	handler := sensu.NewEnterpriseGoHandler(&handlerConfig.PluginConfig, opts, checkArgs, executeHandler)
 	handler.Execute()
 }
 
