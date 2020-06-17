@@ -134,7 +134,9 @@ func executeHandler(event *corev2.Event) error {
 		}
 
 		err = sender.SendMetric(name, point.Value, point.Timestamp, event.Entity.Name, tags)
-		log.Printf("error sending metric: %s", err)
+		if err != nil {
+			log.Printf("error sending metric: %s", err)
+		}
 	}
 
 	log.Printf("sent %d metric points with %d failures", len(event.Metrics.Points), sender.GetFailureCount())
