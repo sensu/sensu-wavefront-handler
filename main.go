@@ -86,7 +86,7 @@ var (
 )
 
 func main() {
-	handler := sensu.NewEnterpriseGoHandler(&handlerConfig.PluginConfig, opts, checkArgs, executeHandler)
+	handler := sensu.NewGoHandler(&handlerConfig.PluginConfig, opts, checkArgs, executeHandler)
 	handler.Execute()
 }
 
