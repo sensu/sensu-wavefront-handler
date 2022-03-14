@@ -3,6 +3,7 @@ package main
 import (
 	"compress/gzip"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -76,7 +77,7 @@ func TestMain(t *testing.T) {
 	require.NoError(t, err)
 	handlerConfig.MetricsPort = port
 	oldArgs := os.Args
-	os.Args = []string{"sensu-wavefront-handler", "--host", host, "--metrics-port", string(port)}
+	os.Args = []string{"sensu-wavefront-handler", "--host", host, "--metrics-port", fmt.Sprint(port)}
 	defer func() { os.Args = oldArgs }()
 
 	main()
