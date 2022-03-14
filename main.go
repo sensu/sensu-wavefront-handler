@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/sensu-community/sensu-plugin-sdk/sensu"
 	corev2 "github.com/sensu/sensu-go/api/core/v2"
+	"github.com/sensu/sensu-plugin-sdk/sensu"
 	wavefront "github.com/wavefronthq/wavefront-sdk-go/senders"
 )
 
