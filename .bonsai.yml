@@ -42,18 +42,11 @@
     -  "entity.system.arch == 'amd64'"
   
   - platform: "OSX"
-    arch: "386"
-    asset_filename: "#{repo}_#{version}_darwin_386.tar.gz"
+    arch: "arm64"
+    asset_filename: "#{repo}_#{version}_darwin_arm64.tar.gz"
     sha_filename: "#{repo}_#{version}_sha512-checksums.txt"
     filter:
     -  "entity.system.os == 'darwin'"
-    -  "entity.system.arch == '386'"
+    -  "entity.system.arch == 'arm64'"
   
-  - platform: "Windows"
-    arch: "amd64"
-    asset_filename: "#{repo}_#{version}_windows_amd64.tar.gz"
-    sha_filename: "#{repo}_#{version}_sha512-checksums.txt"
-    filter:
-    -  "entity.system.os == 'windows'"
-    -  "entity.system.arch == 'amd64'"
   
