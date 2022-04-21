@@ -3,7 +3,8 @@ package main
 import (
 	"fmt"
 	"log"
-        "math"
+	"math"
+
 	corev2 "github.com/sensu/sensu-go/api/core/v2"
 	"github.com/sensu/sensu-plugin-sdk/sensu"
 	wavefront "github.com/wavefronthq/wavefront-sdk-go/senders"
@@ -36,8 +37,8 @@ var (
 		},
 	}
 
-	opts = []*sensu.PluginConfigOption{
-		{
+	opts = []sensu.ConfigOption{
+		&sensu.PluginConfigOption[string]{
 			Path:      host,
 			Env:       "WAVEFRONT_HOST",
 			Argument:  host,
@@ -46,7 +47,7 @@ var (
 			Usage:     "the host of the wavefront proxy",
 			Value:     &handlerConfig.Host,
 		},
-		{
+		&sensu.PluginConfigOption[int]{
 			Path:      port,
 			Env:       "WAVEFRONT_METRICS_PORT",
 			Argument:  port,
@@ -55,7 +56,7 @@ var (
 			Usage:     "the port of the wavefront proxy",
 			Value:     &handlerConfig.MetricsPort,
 		},
-		{
+		&sensu.PluginConfigOption[int]{
 			Path:      flush,
 			Env:       "WAVEFRONT_FLUSH_INTERVAL_SECONDS",
 			Argument:  flush,
@@ -64,21 +65,19 @@ var (
 			Usage:     "the flush interval of the wavefront proxy (in seconds)",
 			Value:     &handlerConfig.FlushIntervalSeconds,
 		},
-		{
+		&sensu.PluginConfigOption[string]{
 			Path:      prefix,
 			Env:       "WAVEFRONT_PREFIX",
 			Argument:  prefix,
 			Shorthand: "p",
-			Default:   "",
 			Usage:     "the string to be prepended to the metric name",
 			Value:     &handlerConfig.Prefix,
 		},
-		{
+		&sensu.MapPluginConfigOption[string]{
 			Path:      tags,
 			Env:       "WAVEFRONT_TAGS",
 			Argument:  tags,
 			Shorthand: "t",
-			Default:   nil,
 			Usage:     "the additional tags to merge with the metric tags",
 			Value:     &handlerConfig.Tags,
 		},
@@ -114,6 +113,8 @@ func executeHandler(event *corev2.Event) error {
 		return err
 	}
 
+	defer sender.Close()
+
 	for _, point := range event.Metrics.Points {
 		tags := make(map[string]string)
 		// merge tags if provided as config option
@@ -132,18 +133,16 @@ func executeHandler(event *corev2.Event) error {
 		if handlerConfig.Prefix != "" {
 			name = fmt.Sprintf("%s.%s", handlerConfig.Prefix, name)
 		}
-		err = sender.SendMetric(name, point.Value, secTimestamp(point.Timestamp), event.Entity.Name, tags)
+		err := sender.SendMetric(name, point.Value, secTimestamp(point.Timestamp), event.Entity.Name, tags)
 		if err != nil {
 			log.Printf("error sending metric: %s", err)
 		}
 	}
 
+	err = sender.Flush()
 	log.Printf("sent %d metric points with %d failures", len(event.Metrics.Points), sender.GetFailureCount())
-	sender.Flush()
-	sender.Close()
-	return nil
+	return err
 }
-
 
 // msTimestamp auto-detection of metric point timestamp precision using a heuristic with a 250-ish year cutoff
 func secTimestamp(ts int64) int64 {
