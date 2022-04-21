@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
-
+        "math"
 	corev2 "github.com/sensu/sensu-go/api/core/v2"
 	"github.com/sensu/sensu-plugin-sdk/sensu"
 	wavefront "github.com/wavefronthq/wavefront-sdk-go/senders"
@@ -132,8 +132,7 @@ func executeHandler(event *corev2.Event) error {
 		if handlerConfig.Prefix != "" {
 			name = fmt.Sprintf("%s.%s", handlerConfig.Prefix, name)
 		}
-
-		err = sender.SendMetric(name, point.Value, point.Timestamp, event.Entity.Name, tags)
+		err = sender.SendMetric(name, point.Value, secTimestamp(point.Timestamp), event.Entity.Name, tags)
 		if err != nil {
 			log.Printf("error sending metric: %s", err)
 		}
@@ -143,4 +142,25 @@ func executeHandler(event *corev2.Event) error {
 	sender.Flush()
 	sender.Close()
 	return nil
+}
+
+
+// msTimestamp auto-detection of metric point timestamp precision using a heuristic with a 250-ish year cutoff
+func secTimestamp(ts int64) int64 {
+	timestamp := ts
+	switch ts := math.Log10(float64(timestamp)); {
+	case ts < 10:
+		// assume timestamp is seconds
+	case ts < 13:
+		// assume timestamp is milliseconds
+		timestamp = (timestamp / 1e3)
+	case ts < 16:
+		// assume timestamp is microseconds
+		timestamp = (timestamp / 1e6)
+	default:
+		// assume timestamp is nanoseconds
+		timestamp = (timestamp / 1e9)
+	}
+
+	return timestamp
 }
