@@ -5,8 +5,8 @@ go 1.17
 require (
 	github.com/sensu/sensu-go/api/core/v2 v2.3.0
 	github.com/sensu/sensu-plugin-sdk v0.15.0
-	github.com/stretchr/testify v1.6.1
-	github.com/wavefronthq/wavefront-sdk-go v0.9.7
+	github.com/stretchr/testify v1.7.1
+	github.com/wavefronthq/wavefront-sdk-go v0.9.11
 )
 
 require (
