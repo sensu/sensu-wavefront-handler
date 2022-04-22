@@ -7,12 +7,14 @@ Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
-## Changed
+## [0.3.0] - 2022-04-22
+
+### Changed
 - Updated to latest wavefront sdk patch release 0.9.11 for build dependancy
 - Updated to latest plugin sdk version v0.16.0-alpha4  for build dependancy
 - Updated to require go 1.18 for build dependancy
 
-## Fixed
+### Fixed
 - Coerce metric timestamp sent to wavefront to 1 second precision using heuristic to determine Sensu metric timestamp precision. Needed to correctly handle prometheus metrics with millisecond precision ingested by agents.
 
 ## [0.2.2] - 2022-03-14
