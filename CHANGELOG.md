@@ -6,6 +6,9 @@ and this project adheres to [Semantic
 Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+### Changed
+- Updated to latest plugin sdk version v0.16.0  for build dependancy
+- Added bonsai webhook notification github action workflow for release workflow
 
 ## [0.3.0] - 2022-04-22
 
